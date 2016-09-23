@@ -40,6 +40,7 @@
 #include "settings.h"
 #include "messages.h"
 #include "pointer.h"
+#include "touch.h"
 #include "events.h"
 #include "common.h"
 #include "window.h"
@@ -220,6 +221,7 @@ void setup(void)
 	init();
 	ewmh_init();
 	pointer_init();
+	touch_init();
 
 	screen = xcb_setup_roots_iterator(xcb_get_setup(dpy)).data;
 
@@ -230,6 +232,7 @@ void setup(void)
 	root = screen->root;
 	register_events();
 	grab_buttons();
+	grab_touches();
 
 	screen_width = screen->width_in_pixels;
 	screen_height = screen->height_in_pixels;

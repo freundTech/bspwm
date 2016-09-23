@@ -29,6 +29,7 @@
 #include <xcb/xcb_icccm.h>
 #include <xcb/randr.h>
 #include <xcb/xcb_event.h>
+#include <xcb/xinput.h>
 #include "helpers.h"
 
 #define MISSING_VALUE        "N/A"

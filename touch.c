@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2012, Bastien Dejean
  * All rights reserved.
  *
@@ -22,30 +23,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BSPWM_EVENTS_H
-#define BSPWM_EVENTS_H
+#include <stdlib.h>
+#include <stdbool.h>
+#include "bspwm.h"
+#include "query.h"
+#include "settings.h"
+#include "stack.h"
+#include "tree.h"
+#include "monitor.h"
+#include "subscribe.h"
+#include "events.h"
+#include "window.h"
+#include "touch.h"
 
-#include <xcb/xcb.h>
-#include <xcb/xcb_event.h>
+void touch_init(void)
+{
+}
 
-uint8_t randr_base;
+void grab_touches(void) {
+	const xcb_query_extension_reply_t *qep = xcb_get_extension_data(dpy, &xcb_input_id);
+	if (qep->present) {	
+		const uint32_t mask[] = {
+				XCB_INPUT_XI_EVENT_MASK_TOUCH_BEGIN
+				| XCB_INPUT_XI_EVENT_MASK_TOUCH_UPDATE
+				| XCB_INPUT_XI_EVENT_MASK_TOUCH_END
+				| XCB_INPUT_XI_EVENT_MASK_TOUCH_OWNERSHIP
+		};
+		const uint32_t modifiers[] = {XCB_INPUT_MODIFIER_MASK_ANY};
 
-void handle_event(xcb_generic_event_t *evt);
-void map_request(xcb_generic_event_t *evt);
-void configure_request(xcb_generic_event_t *evt);
-void destroy_notify(xcb_generic_event_t *evt);
-void unmap_notify(xcb_generic_event_t *evt);
-void property_notify(xcb_generic_event_t *evt);
-void client_message(xcb_generic_event_t *evt);
-void focus_in(xcb_generic_event_t *evt);
-void button_press(xcb_generic_event_t *evt);
-void enter_notify(xcb_generic_event_t *evt);
-void generic_event(xcb_generic_event_t *evt);
-void touch_begin(xcb_generic_event_t *evt);
-void touch_update(xcb_generic_event_t *evt);
-void touch_end(xcb_generic_event_t *evt);
-void touch_ownership(xcb_generic_event_t *evt);
-void handle_state(monitor_t *m, desktop_t *d, node_t *n, xcb_atom_t state, unsigned int action);
-void process_error(xcb_generic_event_t *evt);
+		xcb_input_xi_passive_grab_device(
+				dpy, 
+				XCB_CURRENT_TIME, 
+				root,
+				XCB_CURSOR_NONE,
+				0,
+				XCB_INPUT_DEVICE_ALL_MASTER,
+				1,
+				1,
+				XCB_INPUT_GRAB_TYPE_TOUCH_BEGIN,
+				XCB_INPUT_GRAB_MODE_22_TOUCH,
+				XCB_INPUT_GRAB_MODE_22_ASYNC,
+				XCB_INPUT_GRAB_OWNER_NO_OWNER,
+				mask,
+				modifiers
+			);
+	}
+}
 
-#endif
+void ungrab_touches(void)
+{
+	xcb_ungrab_button(dpy, XCB_BUTTON_INDEX_ANY, root, XCB_MOD_MASK_ANY);
+}
+

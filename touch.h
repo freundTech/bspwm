@@ -22,30 +22,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef BSPWM_EVENTS_H
-#define BSPWM_EVENTS_H
+#ifndef BSPWM_TOUCH_H
+#define BSPWM_TOUCH_H
 
-#include <xcb/xcb.h>
-#include <xcb/xcb_event.h>
-
-uint8_t randr_base;
-
-void handle_event(xcb_generic_event_t *evt);
-void map_request(xcb_generic_event_t *evt);
-void configure_request(xcb_generic_event_t *evt);
-void destroy_notify(xcb_generic_event_t *evt);
-void unmap_notify(xcb_generic_event_t *evt);
-void property_notify(xcb_generic_event_t *evt);
-void client_message(xcb_generic_event_t *evt);
-void focus_in(xcb_generic_event_t *evt);
-void button_press(xcb_generic_event_t *evt);
-void enter_notify(xcb_generic_event_t *evt);
-void generic_event(xcb_generic_event_t *evt);
-void touch_begin(xcb_generic_event_t *evt);
-void touch_update(xcb_generic_event_t *evt);
-void touch_end(xcb_generic_event_t *evt);
-void touch_ownership(xcb_generic_event_t *evt);
-void handle_state(monitor_t *m, desktop_t *d, node_t *n, xcb_atom_t state, unsigned int action);
-void process_error(xcb_generic_event_t *evt);
+void touch_init(void);
+void grab_touches(void);
+void ungrab_touches(void);
+int16_t modfield_from_keysym(xcb_keysym_t keysym);
+resize_handle_t get_handle(node_t *n, xcb_point_t pos, pointer_action_t pac);
+void grab_pointer(pointer_action_t pac);
+void track_pointer(coordinates_t loc, pointer_action_t pac, xcb_point_t pos);
 
 #endif

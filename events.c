@@ -68,6 +68,24 @@ void handle_event(xcb_generic_event_t *evt)
 		case 0:
 			process_error(evt);
 			break;
+		case XCB_GE_GENERIC:{
+			xcb_ge_generic_event_t *ge = (xcb_ge_generic_event_t*)evt;
+			switch (ge->event_type) {
+				case XCB_INPUT_TOUCH_BEGIN:
+					touch_begin(evt);
+					break;
+				case XCB_INPUT_TOUCH_UPDATE:
+					touch_update(evt);
+					break;
+				case XCB_INPUT_TOUCH_END:
+					touch_end(evt);
+					break;
+				case XCB_INPUT_TOUCH_OWNERSHIP:
+					touch_ownership(evt);
+					break;
+				}
+			}
+			break;
 		default:
 			if (randr && resp_type == randr_base + XCB_RANDR_SCREEN_CHANGE_NOTIFY) {
 				update_monitors();
@@ -379,6 +397,26 @@ void enter_notify(xcb_generic_event_t *evt)
 	pointer_follows_focus = pff;
 	pointer_follows_monitor = pfm;
 	auto_raise = true;
+}
+
+void touch_begin(xcb_generic_event_t *evt) {
+	xcb_input_touch_begin_event_t *ev = (xcb_input_touch_begin_event_t*) evt;
+	printf("Begin %d\n", ev->detail);
+}
+
+void touch_update(xcb_generic_event_t *evt) {
+	xcb_input_touch_update_event_t *ev = (xcb_input_touch_update_event_t*) evt;
+	printf("Update %d\n", ev->detail);
+}
+
+void touch_end(xcb_generic_event_t *evt) {
+	xcb_input_touch_end_event_t *ev = (xcb_input_touch_end_event_t*) evt;
+	printf("End %d\n", ev->detail);
+}
+
+void touch_ownership(xcb_generic_event_t *evt) {
+	xcb_input_touch_ownership_event_t *ev = (xcb_input_touch_ownership_event_t*) evt;
+	printf("Ownership \n");
 }
 
 void handle_state(monitor_t *m, desktop_t *d, node_t *n, xcb_atom_t state, unsigned int action)
