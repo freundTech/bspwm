@@ -38,6 +38,7 @@
 
 void touch_init(void)
 {
+	current_touches = 0;
 }
 
 void grab_touches(void) {

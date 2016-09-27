@@ -30,7 +30,7 @@
 
 uint8_t randr_base;
 
-void handle_event(xcb_generic_event_t *evt);
+bool handle_event(xcb_generic_event_t *evt);
 void map_request(xcb_generic_event_t *evt);
 void configure_request(xcb_generic_event_t *evt);
 void destroy_notify(xcb_generic_event_t *evt);
@@ -41,10 +41,10 @@ void focus_in(xcb_generic_event_t *evt);
 void button_press(xcb_generic_event_t *evt);
 void enter_notify(xcb_generic_event_t *evt);
 void generic_event(xcb_generic_event_t *evt);
-void touch_begin(xcb_generic_event_t *evt);
-void touch_update(xcb_generic_event_t *evt);
-void touch_end(xcb_generic_event_t *evt);
-void touch_ownership(xcb_generic_event_t *evt);
+bool touch_begin(xcb_generic_event_t *evt);
+bool touch_update(xcb_generic_event_t *evt);
+bool touch_end(xcb_generic_event_t *evt);
+bool touch_ownership(xcb_generic_event_t *evt);
 void handle_state(monitor_t *m, desktop_t *d, node_t *n, xcb_atom_t state, unsigned int action);
 void process_error(xcb_generic_event_t *evt);
 

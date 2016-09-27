@@ -178,8 +178,9 @@ int main(int argc, char *argv[])
 
 			if (FD_ISSET(dpy_fd, &descriptors)) {
 				while ((event = xcb_poll_for_event(dpy)) != NULL) {
-					handle_event(event);
-					free(event);
+					if(handle_event(event)) {
+						free(event);
+					}
 				}
 			}
 

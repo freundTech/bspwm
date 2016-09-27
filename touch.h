@@ -25,7 +25,12 @@
 #ifndef BSPWM_TOUCH_H
 #define BSPWM_TOUCH_H
 
+#define MAX_TOUCHES 5
+
 void touch_init(void);
+xcb_input_touch_begin_event_t *touches[MAX_TOUCHES];
+uint8_t current_touches;
+
 void grab_touches(void);
 void ungrab_touches(void);
 int16_t modfield_from_keysym(xcb_keysym_t keysym);

@@ -32,9 +32,10 @@
 #include "tree.h"
 #include "window.h"
 #include "pointer.h"
+#include "touch.h"
 #include "events.h"
 
-void handle_event(xcb_generic_event_t *evt)
+bool handle_event(xcb_generic_event_t *evt)
 {
 	uint8_t resp_type = XCB_EVENT_RESPONSE_TYPE(evt);
 	switch (resp_type) {
@@ -72,17 +73,13 @@ void handle_event(xcb_generic_event_t *evt)
 			xcb_ge_generic_event_t *ge = (xcb_ge_generic_event_t*)evt;
 			switch (ge->event_type) {
 				case XCB_INPUT_TOUCH_BEGIN:
-					touch_begin(evt);
-					break;
+					return touch_begin(evt);
 				case XCB_INPUT_TOUCH_UPDATE:
-					touch_update(evt);
-					break;
+					return touch_update(evt);
 				case XCB_INPUT_TOUCH_END:
-					touch_end(evt);
-					break;
+					return touch_end(evt);
 				case XCB_INPUT_TOUCH_OWNERSHIP:
-					touch_ownership(evt);
-					break;
+					return touch_ownership(evt);
 				}
 			}
 			break;
@@ -92,6 +89,7 @@ void handle_event(xcb_generic_event_t *evt)
 			}
 			break;
 	}
+	return true;
 }
 
 void map_request(xcb_generic_event_t *evt)
@@ -399,24 +397,46 @@ void enter_notify(xcb_generic_event_t *evt)
 	auto_raise = true;
 }
 
-void touch_begin(xcb_generic_event_t *evt) {
+bool touch_begin(xcb_generic_event_t *evt) {
 	xcb_input_touch_begin_event_t *ev = (xcb_input_touch_begin_event_t*) evt;
-	printf("Begin %d\n", ev->detail);
+	if (current_touches < MAX_TOUCHES) {
+		//Event will be freed by event loop. Copy it.
+		touches[current_touches] = ev;
+		current_touches++;
+		printf("Begin %d. %d touches now.\n", ev->detail, current_touches);
+		return false;
+	}
+	printf("Begin %d. %d touches now.\n", ev->detail, current_touches);
+	return true;
 }
 
-void touch_update(xcb_generic_event_t *evt) {
+bool touch_update(xcb_generic_event_t *evt) {
 	xcb_input_touch_update_event_t *ev = (xcb_input_touch_update_event_t*) evt;
 	printf("Update %d\n", ev->detail);
+	return true;
 }
 
-void touch_end(xcb_generic_event_t *evt) {
+bool touch_end(xcb_generic_event_t *evt) {
 	xcb_input_touch_end_event_t *ev = (xcb_input_touch_end_event_t*) evt;
-	printf("End %d\n", ev->detail);
+	for (uint8_t i = 0; i < current_touches; i++) {
+		if (touches[i]->detail == ev->detail)
+		{
+			//Found touch that ended. Remove it and shift later touches to front.
+			free((xcb_generic_event_t *)touches[i]);
+			for (uint8_t j = i; j < current_touches-1; j++) {
+				touches[j] = touches[j+1];
+			}
+			current_touches--;
+		}
+	}
+	printf("End %d. %d touches now.\n", ev->detail, current_touches);
+	return true;
 }
 
-void touch_ownership(xcb_generic_event_t *evt) {
+bool touch_ownership(xcb_generic_event_t *evt) {
 	xcb_input_touch_ownership_event_t *ev = (xcb_input_touch_ownership_event_t*) evt;
 	printf("Ownership \n");
+	return true;
 }
 
 void handle_state(monitor_t *m, desktop_t *d, node_t *n, xcb_atom_t state, unsigned int action)
